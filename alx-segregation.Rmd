@@ -1,0 +1,42 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r, echo=FALSE}
+library(segregation)
+library(tidyverse)
+
+demo_data <- read_csv("Data//ACSDT5Y2019.B03002_data_with_overlays_2021-03-13T170647.csv")
+
+demo_data <- demo_data[-1,]
+
+demo_data <- demo_data %>% 
+  mutate(white_alone_share = as.numeric(B03002_003E) / as.numeric(B03002_001E),
+         GEOID = substr(GEO_ID,10,22))
+
+demo_data
+
+
+demo_short <- as.data.frame(cbind(as.numeric(demo_data$B02001_002E), as.numeric(demo_data$B02001_003E)))
+
+demo_short <- demo_short[-1,]
+
+dissim_results <- dissim(data = demo_short)
+
+dissim_results
+
+alx_blocks <- block_groups(state =  "51", county = "510")
+
+plot(alx_blocks$geometry)
+
+demo_geo <- left_join(alx_blocks, demo_data, by = "GEOID")
+
+class(demo_geo)
+
+ggplot(data = demo_geo) + 
+  geom_sf(aes(fill = white_alone_share))
+```
+
+
